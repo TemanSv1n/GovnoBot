@@ -365,8 +365,52 @@ async def global_rename(inter, name: str, type: commands.Range[int, 0, 3] = 1):
             except disnake.errors.Forbidden:
                 print("forbidden")
 
+@bot.slash_command(description="глобально срет пастой")
+async def global_spam(inter, text: str, file: commands.String[str, 1, ...] = "-1"):
+    #await user.send(f"{text}")
 
+    guild_id = inter.guild.id
+    channel_id = inter.channel.id
+    visible = True
 
+    guild = inter.guild
+    members = guild.members
+
+    await inter.response.send_message("✔",ephemeral=visible)
+
+    channel = inter.channel
+
+    for user in members:
+        try:
+            if file == "-1":
+                await user.send(f"{text}")
+            else:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(file) as resp:
+                        if resp.status != 200:
+                            return await inter.response.send_message("Could not download file...", ephemeral=True)
+                        data = io.BytesIO(await resp.read())
+                        await user.send(f"{text}", file=disnake.File(data, 'picrelated.png'))
+        except disnake.errors.HTTPException:
+            print("Насрано! Пользователь обиженка!")
+        except Exception as ex_:
+            print("насрано " + ex_)
+
+@bot.slash_command(description="хаха минус роль")
+async def role_delete(inter, member_id: commands.String[str, 1, ...], role_id: commands.String[str, 1, ...], guild_id: commands.String[str, 1, ...]):
+    guildd = bot.get_guild(int(guild_id))
+    member = guildd.get_member(int(member_id))
+    role = guildd.get_role(int(role_id))
+    await member.remove_roles(role)
+    await inter.response.send_message("Роль удалена))", ephemeral=True)
+
+@bot.slash_command(description="хаха минус роль")
+async def role_delete_mu(inter, member_id: commands.String[str, 1, ...], guild_id: commands.String[str, 1, ...]):
+    guildd = bot.get_guild(int(guild_id))
+    member = guildd.get_member(int(member_id))
+    for role in member.roles:
+        await member.remove_roles(role)
+    await inter.response.send_message("Роль удалена))", ephemeral=True)
 
 token = "sus"
 try:
